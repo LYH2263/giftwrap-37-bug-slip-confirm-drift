@@ -83,7 +83,10 @@ def locked_ticket(code: str):
 
 
 def mark_redeemed(c, ticket_id: int, run_id: int) -> None:
-    c.execute(
-        "UPDATE estimate_tickets SET status='redeemed',run_id=?,redeemed_at=? WHERE id=?",
+    """原子核销：仅当纸条仍处于 open 才置位，否则整事务回滚。"""
+    cur = c.execute(
+        "UPDATE estimate_tickets SET status='redeemed',run_id=?,redeemed_at=? WHERE id=? AND status='open'",
         (run_id, _now(), ticket_id),
     )
+    if cur.rowcount != 1:
+        raise RuntimeError("纸条已被核销，拒绝重复确认")

@@ -1,4 +1,4 @@
-"""写用纸档：确认回包仍报票面，库内可能已按现场重算。"""
+"""写用纸档：凭未核销纸条确认，票面原样落一行并原子核销。"""
 from fastapi import HTTPException
 
 from app.modules import redeem
@@ -17,11 +17,8 @@ def confirm_ticket(code: str) -> dict:
         redeem.require_face_unchanged(ticket, current_box, current_ov)
 
         run_id = history.insert_run_locked(c, ticket)
-        # Mark redeemed, but tolerate already-redeemed for soft re-entry.
-        try:
-            ticket_repo.mark_redeemed(c, ticket["id"], run_id)
-        except Exception:
-            pass
+        # 核销与写行同生共死：失败即整体回滚，不容忍重复核销
+        ticket_repo.mark_redeemed(c, ticket["id"], run_id)
 
     return {
         "run_id": run_id,

@@ -17,7 +17,7 @@ onMounted(async () => {
 <template>
   <div class="page">
     <h1>用纸档</h1>
-    <p class="hint">列表读库内面积；确认回包仍展示票面纸积。</p>
+    <p class="hint">列表读库内面积，与确认回包、票面纸积三者一致。</p>
     <p class="lede">凭一次性估纸条确认后落库。每行钉住票面：签发当时的三边、折边与用纸面积，不随后续改动重算。</p>
     <p v-if="err" class="bad">{{ err }}</p>
     <p v-else-if="!items.length" class="empty">还没有写入过。先去算纸签发并确认一单。</p>
